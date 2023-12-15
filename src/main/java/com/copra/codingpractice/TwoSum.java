@@ -1,5 +1,6 @@
 package com.copra.codingpractice;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -9,7 +10,10 @@ public class TwoSum {
 
         int[] nums = {2,7,11,15};
         int target = 9;
-        Solution.twoSum(nums, target);
+        int[] a = Solution.twoSum(nums, target);
+        System.out.println(Arrays.toString(a));
+        int[] b = twoSumBrute(nums, target);
+        System.out.println(Arrays.toString(b));
 
     }
     class Solution {
@@ -27,14 +31,17 @@ public class TwoSum {
         }
     }
 
-    public static int[] twoSum(int[] nums, int target) {
+    // int[] nums = {2,7,11,15};
+    // int target = 9;
+    public static int[] twoSumBrute(int[] nums, int target) {
         int[] a  = null;
         for(int i = 0; i < nums.length - 1; i++){
-            for(int j = i+1 ; j< nums.length; j++ ){
-                if(nums[i] + nums [j] == target){
-                    return a = new int[] {i, j};
+            for(int j = i+1 ; i < nums.length ; j++){
+                if(target == nums[i] + nums[j]){
+                    return new int[] {i, j};
                 }
             }
+
         }
         return new int[] {};
     }

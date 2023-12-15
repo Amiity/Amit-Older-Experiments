@@ -9,7 +9,9 @@ public class WaitNotify implements Runnable {
         Thread t1 = new Thread(wn);
         t1.start();
         synchronized (wn) {
+            System.out.println("Hey .. going on waiting state ...");
             wn.wait();
+            System.out.println("Hey .. Recieved notification resuming ...");
             System.out.println("total : " + wn.total);
         }
 
@@ -21,8 +23,10 @@ public class WaitNotify implements Runnable {
         synchronized (this) {
             for (int i = 0; i < 20; i++) {
                 total = total + 100;
-                notify();
             }
+            System.out.println("Before notification ...");
+            notify();
+            System.out.println("Sending .. Notification ..");
         }
     }
 }

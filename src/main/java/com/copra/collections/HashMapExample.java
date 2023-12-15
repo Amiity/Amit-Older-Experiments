@@ -25,6 +25,7 @@ public class HashMapExample {
         scores.put("Bob", 85);
         scores.put("Charlie", 90);
         scores.put("David", 88);
+        scores.put("David", 92);
 
         // Printing the HashMap
         System.out.println("HashMap: "+scores);

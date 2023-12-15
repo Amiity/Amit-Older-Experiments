@@ -74,11 +74,14 @@ class Runner{
         employeeList.add(new Employee(4,"Divy", 32));
         employeeList.add(new Employee(4,"Bobby", 12));
 
-        System.out.println(employeeList);
-        //Collections.sort(employeeList);
+        //System.out.println(employeeList);
+        Collections.sort(employeeList);
         Collections.sort(employeeList, new SortByName());
-        System.out.println(employeeList);
+        //System.out.println(employeeList);
 
+
+        Collections.sort(employeeList, (a1, a2) -> { return a2.getAge()-a1.getAge();});
+        System.out.println(employeeList);
     }
 }
 

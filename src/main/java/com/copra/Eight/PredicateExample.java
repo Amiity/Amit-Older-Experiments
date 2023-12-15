@@ -35,6 +35,12 @@ public class PredicateExample {
         System.out.println(output3);
 
 
+        Predicate<Integer> divisbleBy2 = num -> num%2 ==0;
+        Predicate<Integer> divisbleBy3 = num -> num%3 ==0;
+
+        Predicate<Integer> divisbleby6 = divisbleBy2.and(divisbleBy3);
+        System.out.println(divisbleby6.test(6));
+
 
         // Example with students class ....
 

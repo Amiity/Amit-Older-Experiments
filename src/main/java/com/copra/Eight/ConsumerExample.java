@@ -29,5 +29,6 @@ public class ConsumerExample {
         Consumer<Students> result = consumeUpper.andThen(consumerAppend);
         result.accept(s1);
 
+
     }
 }
