@@ -1,75 +1,123 @@
-Azure Data Explorer Security Baseline
-This document provides an overview of the security features and recommendations for Azure Data Explorer based on the Microsoft cloud security benchmark. It highlights features supported by either the customer or Microsoft.
-
-Table of Contents
-Network Security
-NS-1: Establish Network Segmentation Boundaries
-NS-2: Secure Cloud Services with Network Controls
-Identity Management
-IM-1: Use Centralized Identity and Authentication System
-IM-3: Manage Application Identities Securely and Automatically
-IM-7: Restrict Resource Access Based on Conditions
-Data Protection
-DP-1: Discover, Classify, and Label Sensitive Data
-DP-2: Monitor Anomalies and Threats Targeting Sensitive Data
-DP-3: Encrypt Sensitive Data in Transit
-DP-4: Enable Data at Rest Encryption by Default
-DP-5: Use Customer-Managed Key Option in Data at Rest Encryption When Required
-Asset Management
-AM-2: Use Only Approved Services
-Logging and Threat Detection
-LT-4: Enable Logging for Security Investigation
 Network Security
 NS-1: Establish Network Segmentation Boundaries
 Feature	Supported	Enabled By Default	Configuration Responsibility
 Virtual Network Integration	True	False	Customer
 Network Security Group Support	True	False	Customer
+Configuration Guidance:
+
+Virtual Network Integration: Deploy Azure Data Explorer cluster into a subnet in your VNet. Implement NSG rules to restrict traffic and connect on-premises network to the Azure Data Explorer cluster's subnet.
+Network Security Group Support: Configure NSG rules when Azure Data Explorer is injected into the customer virtual network. It's recommended to follow a private endpoint-based network security implementation.
+References:
+
+Deploy Azure Data Explorer cluster into your Virtual Network
+Configure Network Security Group rules
 NS-2: Secure Cloud Services with Network Controls
 Feature	Supported	Enabled By Default	Configuration Responsibility
 Azure Private Link	True	False	Customer
 Disable Public Network Access	True	False	Customer
+Configuration Guidance:
+
+Azure Private Link: Use private endpoints to secure network access to your cluster, which simplifies deployment and reduces maintenance overhead.
+Disable Public Network Access: Disable public network access using the service-level IP ACL filtering rule or a toggling switch for public network access.
+References:
+
+Private endpoints for Azure Data Explorer
+Restrict public access to your Azure Data Explorer cluster
 Identity Management
 IM-1: Use Centralized Identity and Authentication System
 Feature	Supported	Enabled By Default	Configuration Responsibility
 Azure AD Authentication for Data Plane	True	False	Customer
 Local Authentication Methods for Data Plane	False	Not Applicable	Not Applicable
+Configuration Guidance:
+
+Use Azure Active Directory (Azure AD) as the default authentication method to control data plane access.
+References:
+
+How to authenticate with Azure Active Directory (Azure AD) for Azure Data Explorer access
 IM-3: Manage Application Identities Securely and Automatically
 Feature	Supported	Enabled By Default	Configuration Responsibility
 Managed Identities	True	True	Microsoft
 Service Principals	True	True	Microsoft
+Feature Notes:
+
+Azure Data Explorer supports System and User Managed Identities and can use Managed Identities to authenticate with other services for Ingestion and Query.
+No additional configurations are required as these are enabled by default.
+References:
+
+Managed identities overview
+Azure Active Directory authentication using an application
 IM-7: Restrict Resource Access Based on Conditions
 Feature	Supported	Enabled By Default	Configuration Responsibility
 Conditional Access for Data Plane	True	False	Customer
+Configuration Guidance:
+
+Define conditions and criteria for Azure AD conditional access to control data plane access based on location, device, or sign-in behavior.
+References:
+
+Conditional Access with Azure Data Explorer
 Data Protection
 DP-1: Discover, Classify, and Label Sensitive Data
 Feature	Supported	Enabled By Default	Configuration Responsibility
 Sensitive Data Discovery and Classification	True	False	Customer
+Configuration Guidance:
+
+Use Microsoft Purview to scan, classify, and label sensitive data in Azure Data Explorer.
+References:
+
+Azure Purview
 DP-2: Monitor Anomalies and Threats Targeting Sensitive Data
 Feature	Supported	Enabled By Default	Configuration Responsibility
 Data Leakage/Loss Prevention	True	False	Customer
+Configuration Guidance:
+
+Control outbound access at the cluster level by defining callout policies to allow access to specified SQL, storage, or other endpoints to mitigate data exfiltration risks.
+References:
+
+Restrict outbound access from your Azure Data Explorer cluster
 DP-3: Encrypt Sensitive Data in Transit
 Feature	Supported	Enabled By Default	Configuration Responsibility
 Data in Transit Encryption	True	True	Microsoft
+Configuration Guidance:
+
+No additional configurations are required as this feature is enabled by default.
+References:
+
+Data Encryption in Azure Data Explorer
 DP-4: Enable Data at Rest Encryption by Default
 Feature	Supported	Enabled By Default	Configuration Responsibility
 Data at Rest Encryption Using Platform Keys	True	True	Microsoft
+Configuration Guidance:
+
+No additional configurations are required as this feature is enabled by default.
+References:
+
+Data Encryption in Azure Data Explorer
 DP-5: Use Customer-Managed Key Option in Data at Rest Encryption When Required
 Feature	Supported	Enabled By Default	Configuration Responsibility
 Data at Rest Encryption Using CMK	True	False	Customer
+Configuration Guidance:
+
+Use customer-managed keys to have greater control over encryption keys. Manage encryption at the storage level with your own keys, providing flexibility to create, rotate, disable, and revoke access controls.
+References:
+
+Encryption using configure customer-managed keys
 Asset Management
 AM-2: Use Only Approved Services
 Feature	Supported	Enabled By Default	Configuration Responsibility
 Azure Policy Support	True	False	Customer
+Configuration Guidance:
+
+Use Microsoft Defender for Cloud to configure Azure Policy to audit and enforce configurations of Azure resources. Monitor for configuration deviations and enforce secure configurations using Azure Policy.
+References:
+
+Azure Policy Regulatory Compliance controls for Azure Data Explorer
 Logging and Threat Detection
 LT-4: Enable Logging for Security Investigation
 Feature	Supported	Enabled By Default	Configuration Responsibility
 Azure Resource Logs	True	False	Customer
-This document summarizes the key security features and responsibilities for Azure Data Explorer as per the Microsoft cloud security benchmark. For further details on how these features can be implemented and leveraged, refer to the Microsoft cloud security benchmark documentation.
+Configuration Guidance:
 
+Use Azure Data Explorer's diagnostic logs for insights on ingestion, commands, queries, and tables. Export logs to Azure Storage, Event Hub, or Log Analytics for monitoring and analysis.
+References:
 
-
-
-
-
-
-
+Monitor Azure Data Explorer ingestion, commands, queries, and tables using diagnostic logs
