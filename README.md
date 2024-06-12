@@ -1,169 +1,156 @@
-# Azure Data Explorer - Security and Configuration Guidelines
+# Azure Data Explorer (ADX) README
 
-This document provides detailed information on security and configuration practices for Azure Data Explorer. Follow the guidelines to ensure a secure and compliant deployment of Azure Data Explorer clusters.
+## Overview
 
----
+Azure Data Explorer (ADX) is a fully managed, high-performance big data analytics platform designed to enable the analysis of large volumes of data in near real-time. ADX provides a comprehensive suite of tools for data ingestion, querying, visualization, and management, making it ideal for scenarios that demand rapid insights and immediate actions.
 
-## Network Security
+## Goals and Purpose
 
-### NS-1: Establish Network Segmentation Boundaries
+The primary goal of Azure Data Explorer is to facilitate efficient querying and analysis of massive datasets to support high-performance analytics and decision-making processes. Specifically, ADX is excellent for querying Logic Apps to meet Geographic Information System (GIS) requirements due to its capability to handle substantial log data volumes and perform complex queries with low latency.
 
-| Feature                        | Supported | Enabled By Default | Configuration Responsibility |
-|--------------------------------|-----------|--------------------|------------------------------|
-| Virtual Network Integration    | True      | False              | Customer                     |
-| Network Security Group Support | True      | False              | Customer                     |
+## Key Resources in Azure Data Explorer
 
-**Configuration Guidance:**
+Setting up and managing Azure Data Explorer involves several critical resources. Below is an outline of three essential Azure resources used in ADX, along with their purposes and reasons for their necessity:
 
-- **Virtual Network Integration**: Deploy Azure Data Explorer cluster into a subnet in your VNet. Implement NSG rules to restrict traffic and connect on-premises network to the Azure Data Explorer cluster's subnet.
-  - [Deploy Azure Data Explorer cluster into your Virtual Network](https://docs.microsoft.com/azure/data-explorer/deploy-vnet)
-- **Network Security Group Support**: Configure NSG rules when Azure Data Explorer is injected into the customer virtual network. It's recommended to follow a private endpoint-based network security implementation.
-  - [Configure Network Security Group rules](https://docs.microsoft.com/azure/data-explorer/nsg)
+### 1. `azurerm_kusto_cluster`
 
-### NS-2: Secure Cloud Services with Network Controls
+- **Purpose:**
+  The `azurerm_kusto_cluster` is the core computing resource in Azure Data Explorer. It represents the cluster where data is stored and queried. This cluster provides the necessary computational power to manage high-throughput and low-latency queries on large datasets.
 
-| Feature                  | Supported | Enabled By Default | Configuration Responsibility |
-|--------------------------|-----------|--------------------|------------------------------|
-| Azure Private Link       | True      | False              | Customer                     |
-| Disable Public Network Access | True | False              | Customer                     |
+- **Why It’s Required:**
+  - **Scalability:** Supports the ingestion and querying of massive amounts of data.
+  - **Performance:** Ensures high-performance querying capabilities.
+  - **Management:** Centralizes data storage and computational resources.
 
-**Configuration Guidance:**
+### 2. `azurerm_kusto_database`
 
-- **Azure Private Link**: Use private endpoints to secure network access to your cluster, which simplifies deployment and reduces maintenance overhead.
-  - [Private endpoints for Azure Data Explorer](https://docs.microsoft.com/azure/data-explorer/private-endpoints)
-- **Disable Public Network Access**: Disable public network access using the service-level IP ACL filtering rule or a toggling switch for public network access.
-  - [Restrict public access to your Azure Data Explorer cluster](https://docs.microsoft.com/azure/data-explorer/restrict-public-access)
+- **Purpose:**
+  The `azurerm_kusto_database` serves as a logical container within a Kusto cluster. It is where data is stored and organized, and from where data is ingested and queried.
 
----
+- **Why It’s Required:**
+  - **Organization:** Helps in organizing and structuring the data within the cluster.
+  - **Querying:** Acts as the main unit for data storage and retrieval operations.
+  - **Management:** Simplifies data management within the cluster environment.
 
-## Identity Management
+### 3. `azurerm_kusto_cluster_customer_managed_key`
 
-### IM-1: Use Centralized Identity and Authentication System
+- **Purpose:**
+  The `azurerm_kusto_cluster_customer_managed_key` allows for the integration of a customer-managed encryption key (CMK) with a Kusto cluster. This key is used to encrypt data stored in the cluster, providing an additional layer of security.
 
-| Feature                                | Supported | Enabled By Default | Configuration Responsibility |
-|----------------------------------------|-----------|--------------------|------------------------------|
-| Azure AD Authentication for Data Plane | True      | False              | Customer                     |
-| Local Authentication Methods for Data Plane | False | Not Applicable | Not Applicable |
+- **Why It’s Required:**
+  - **Security:** Enhances data security by allowing you to manage and control the encryption keys.
+  - **Compliance:** Assists in meeting specific regulatory and compliance requirements related to data security.
+  - **Control:** Provides greater control over the encryption processes and key management.
 
-**Configuration Guidance:**
+## Azure Policy Built-In Definitions for ADX
 
-- Use Azure Active Directory (Azure AD) as the default authentication method to control data plane access.
-  - [How to authenticate with Azure Active Directory (Azure AD) for Azure Data Explorer access](https://docs.microsoft.com/azure/data-explorer/azure-ad-authentication)
+To ensure security and compliance, Azure provides several built-in policy definitions specific to Azure Data Explorer. These policies help enforce organizational standards and assess compliance. Below is a simplified explanation of each built-in policy, with the default effect set to **Audit** unless specified otherwise.
 
-### IM-3: Manage Application Identities Securely and Automatically
+### 1. Azure Data Explorer Encryption at Rest Should Use a Customer-Managed Key
 
-| Feature           | Supported | Enabled By Default | Configuration Responsibility |
-|-------------------|-----------|--------------------|------------------------------|
-| Managed Identities | True      | True               | Microsoft                    |
-| Service Principals | True      | True               | Microsoft                    |
+- **Description:** Ensures data in ADX is encrypted using a key managed by you, not by Microsoft, providing extra security and compliance control.
+- **Why It Matters:**
+  - **Security Control:** You manage the encryption key, offering tighter security for your data.
+  - **Compliance:** Meets specific regulatory requirements regarding data security.
+- **Effects:**
+  - **Audit:** Checks if customer-managed keys are used and reports non-compliance.
+  - **Deny:** Prevents the creation of clusters without customer-managed keys.
+  - **Disabled:** The policy is not enforced.
+- **Version:** 1.0.0
 
-**Feature Notes:**
+### 2. Disk Encryption Should Be Enabled on Azure Data Explorer
 
-- Azure Data Explorer supports System and User Managed Identities and can use Managed Identities to authenticate with other services for Ingestion and Query.
-- No additional configurations are required as these are enabled by default.
-  - [Managed identities overview](https://docs.microsoft.com/azure/active-directory/managed-identities-azure-resources/overview)
-  - [Azure Active Directory authentication using an application](https://docs.microsoft.com/azure/data-explorer/azure-ad-authentication)
+- **Description:** Requires that disks used by ADX are encrypted to protect data at rest and meet security needs.
+- **Why It Matters:**
+  - **Data Protection:** Ensures stored data is encrypted and secure from unauthorized access.
+  - **Compliance:** Helps meet security standards requiring disk encryption.
+- **Effects:**
+  - **Audit:** Monitors and reports clusters without disk encryption.
+  - **Deny:** Prevents the creation of clusters without encrypted disks.
+  - **Disabled:** The policy does not enforce compliance.
+- **Version:** 2.0.0
 
-### IM-7: Restrict Resource Access Based on Conditions
+### 3. Double Encryption Should Be Enabled on Azure Data Explorer
 
-| Feature                         | Supported | Enabled By Default | Configuration Responsibility |
-|---------------------------------|-----------|--------------------|------------------------------|
-| Conditional Access for Data Plane | True    | False              | Customer                     |
+- **Description:** Enforces double encryption, providing an additional layer of security by encrypting data twice using different methods and keys.
+- **Why It Matters:**
+  - **Extra Security Layer:** Adds robust security by encrypting data twice.
+  - **Compliance:** Useful for meeting stringent security and compliance requirements.
+- **Effects:**
+  - **Audit:** Checks and reports if double encryption is not enabled.
+  - **Deny:** Prevents setting up clusters without double encryption.
+  - **Disabled:** The policy is inactive.
+- **Version:** 2.0.0
 
-**Configuration Guidance:**
+### 4. Virtual Network Injection Should Be Enabled for Azure Data Explorer
 
-- Define conditions and criteria for Azure AD conditional access to control data plane access based on location, device, or sign-in behavior.
-  - [Conditional Access with Azure Data Explorer](https://docs.microsoft.com/azure/data-explorer/conditional-access)
+- **Description:** Requires ADX to be integrated with a virtual network, securing the network boundaries and allowing the application of network security rules.
+- **Why It Matters:**
+  - **Network Security:** Protects data by controlling which networks can access ADX.
+  - **Compliance:** Meets network security requirements through virtual network controls.
+- **Effects:**
+  - **Audit:** Identifies clusters not integrated with a virtual network.
+  - **Deny:** Blocks clusters that are not within a virtual network.
+  - **Disabled:** The policy is not enforced.
+- **Version:** 1.0.0
 
----
+### 5. Azure Data Explorer Should Use a SKU That Supports Private Link
 
-## Data Protection
+- **Description:** Mandates using a specific SKU (service level) of ADX that supports Private Link, allowing secure, private connections.
+- **Why It Matters:**
+  - **Data Security:** Ensures secure data transfer within private networks, avoiding public internet exposure.
+  - **Compliance:** Helps in meeting data security requirements by avoiding public internet connections.
+- **Effects:**
+  - **Audit:** Reports if the appropriate SKU is not used.
+  - **Deny:** Prevents the use of SKUs that don't support Private Link.
+  - **Disabled:** The policy does not take any action.
+- **Version:** 1.0.0
 
-### DP-1: Discover, Classify, and Label Sensitive Data
+### 6. Public Network Access Should Be Disabled on Azure Data Explorer
 
-| Feature                           | Supported | Enabled By Default | Configuration Responsibility |
-|-----------------------------------|-----------|--------------------|------------------------------|
-| Sensitive Data Discovery and Classification | True | False             | Customer                     |
+- **Description:** Requires public network access to be disabled for ADX clusters, ensuring access is only through private networks.
+- **Why It Matters:**
+  - **Security Enhancement:** Reduces unauthorized access risks by disallowing public network access.
+  - **Data Protection:** Ensures data is accessible only through secure, private networks.
+- **Effects:**
+  - **Audit:** Checks if clusters have public network access enabled and reports them.
+  - **Deny:** Blocks the creation of clusters with public network access.
+  - **Disabled:** No action is taken.
+- **Version:** 1.0.0
 
-**Configuration Guidance:**
+### 7. Configure Azure Data Explorer to Disable Public Network Access
 
-- Use Microsoft Purview to scan, classify, and label sensitive data in Azure Data Explorer.
-  - [Azure Purview](https://docs.microsoft.com/azure/purview/)
+- **Description:** Automatically disables public network access for all ADX clusters, ensuring they can only be accessed through private endpoints.
+- **Why It Matters:**
+  - **Automated Security:** Secures clusters by automatically disabling public network access.
+  - **Data Safety:** Ensures data is only accessible through private, secure channels.
+- **Effects:**
+  - **Modify:** Changes the configuration of existing clusters to disable public network access.
+  - **Disabled:** The policy is inactive.
+- **Version:** 1.0.0
 
-### DP-2: Monitor Anomalies and Threats Targeting Sensitive Data
+### 8. Azure Data Explorer Cluster Should Use a Private Link
 
-| Feature                         | Supported | Enabled By Default | Configuration Responsibility |
-|---------------------------------|-----------|--------------------|------------------------------|
-| Data Leakage/Loss Prevention    | True      | False              | Customer                     |
+- **Description:** Ensures ADX clusters are accessed through a Private Link, providing secure, private connections within the Azure backbone network.
+- **Why It Matters:**
+  - **Secure Access:** Limits access to clusters to private, secure connections only.
+  - **Reduced Exposure:** Minimizes data leakage risks by avoiding public internet connections.
+- **Effects:**
+  - **Audit:** Monitors and reports clusters that do not use Private Link.
+  - **Disabled:** No enforcement action is taken.
+- **Version:** 1.0.0
 
-**Configuration Guidance:**
+### 9. Configure Azure Data Explorer Clusters with Private Endpoints
 
-- Control outbound access at the cluster level by defining callout policies to allow access to specified SQL, storage, or other endpoints to mitigate data exfiltration risks.
-  - [Restrict outbound access from your Azure Data Explorer cluster](https://docs.microsoft.com/azure/data-explorer/restrict-outbound-access)
+- **Description:** Automatically sets up private endpoints for ADX clusters, ensuring secure connections without public IPs.
+- **Why It Matters:**
+  - **Private Connectivity:** Ensures that data is only accessible within your private network.
+  - **Security Compliance:** Helps meet security policies by using private connections.
+- **Effects:**
+  - **DeployIfNotExists:** Automatically sets up private endpoints if they do not already exist.
+  - **Disabled:** The policy does not enforce any action.
+- **Version:** 1.0.0
 
-### DP-3: Encrypt Sensitive Data in Transit
+## Conclusion
 
-| Feature                 | Supported | Enabled By Default | Configuration Responsibility |
-|-------------------------|-----------|--------------------|------------------------------|
-| Data in Transit Encryption | True   | True               | Microsoft                    |
-
-**Configuration Guidance:**
-
-- No additional configurations are required as this feature is enabled by default.
-  - [Data Encryption in Azure Data Explorer](https://docs.microsoft.com/azure/data-explorer/data-encryption)
-
-### DP-4: Enable Data at Rest Encryption by Default
-
-| Feature                           | Supported | Enabled By Default | Configuration Responsibility |
-|-----------------------------------|-----------|--------------------|------------------------------|
-| Data at Rest Encryption Using Platform Keys | True | True             | Microsoft                    |
-
-**Configuration Guidance:**
-
-- No additional configurations are required as this feature is enabled by default.
-  - [Data Encryption in Azure Data Explorer](https://docs.microsoft.com/azure/data-explorer/data-encryption)
-
-### DP-5: Use Customer-Managed Key Option in Data at Rest Encryption When Required
-
-| Feature                               | Supported | Enabled By Default | Configuration Responsibility |
-|---------------------------------------|-----------|--------------------|------------------------------|
-| Data at Rest Encryption Using CMK     | True      | False              | Customer                     |
-
-**Configuration Guidance:**
-
-- Use customer-managed keys to have greater control over encryption keys. Manage encryption at the storage level with your own keys, providing flexibility to create, rotate, disable, and revoke access controls.
-  - [Encryption using configure customer-managed keys](https://docs.microsoft.com/azure/data-explorer/customer-managed-keys)
-
----
-
-## Asset Management
-
-### AM-2: Use Only Approved Services
-
-| Feature           | Supported | Enabled By Default | Configuration Responsibility |
-|-------------------|-----------|--------------------|------------------------------|
-| Azure Policy Support | True   | False              | Customer                     |
-
-**Configuration Guidance:**
-
-- Use Microsoft Defender for Cloud to configure Azure Policy to audit and enforce configurations of Azure resources. Monitor for configuration deviations and enforce secure configurations using Azure Policy.
-  - [Azure Policy Regulatory Compliance controls for Azure Data Explorer](https://docs.microsoft.com/azure/data-explorer/security-compliance)
-
----
-
-## Logging and Threat Detection
-
-### LT-4: Enable Logging for Security Investigation
-
-| Feature           | Supported | Enabled By Default | Configuration Responsibility |
-|-------------------|-----------|--------------------|------------------------------|
-| Azure Resource Logs | True   | False              | Customer                     |
-
-**Configuration Guidance:**
-
-- Use Azure Data Explorer's diagnostic logs for insights on ingestion, commands, queries, and tables. Export logs to Azure Storage, Event Hub, or Log Analytics for monitoring and analysis.
-  - [Monitor Azure Data Explorer ingestion, commands, queries, and tables using diagnostic logs](https://docs.microsoft.com/azure/data-explorer/diagnostic-logs)
-
----
-
-For further details, refer to the specific configuration guidelines and references provided under each section.
+Azure Data Explorer is a powerful platform for high-performance analytics and decision-making. By leveraging the key resources and adhering to Azure Policy built-in definitions, you can ensure that your data is secure, compliant, and efficiently managed.
